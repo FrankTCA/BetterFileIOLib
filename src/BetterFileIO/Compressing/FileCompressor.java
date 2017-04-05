@@ -21,6 +21,19 @@ public class FileCompressor {
     FileOutputStream fos = new FileOutputStream(fromFile.getFilePath().getPathAsString());
     ZipOutputStream zos = new ZipOutputSteam(fos);
     zos.putNextEntry(new ZipEntry(fromFile.getFilePath().getPathAsString()));
-    
+    byte[] bytes = Files.readAllBytes(Paths.get(fromFile.getFilePath().getPathAsString()));
+    zos.write(bytes, 0, bytes.length);
+    zos.closeEntry();
+    zos.close();
+  }
+  
+  // get file that will be/has been written to
+  public void getToFile() {
+    return toFile();
+  }
+  
+  // get file that will be read from
+  public void getFromFile() {
+    return fromFile;
   }
 }
