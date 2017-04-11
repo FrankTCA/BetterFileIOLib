@@ -2,6 +2,7 @@ package BetterFileIO.FileManagement;
 
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import BetterFileIO.FileManagement.File;
 
 public class Directory {
   java.io.File directory;
@@ -9,7 +10,7 @@ public class Directory {
   
   public Directory(FilePath path1) {
     path = path1;
-    directory = new File(path1.getPathAsString());
+    directory = new java.io.File(path1.getPathAsString());
   }
   
   public boolean create() throws IOException {
@@ -34,7 +35,7 @@ public class Directory {
     if (directory.exists()) {
       File[] children = findAllChildren(directoryBuffer);
       int index = 0;
-      while (children.getFilePath().getPathAsString() != null) {
+      while ((children[index].getFilePath().getPathAsString()) != null) {
         children[index].delete();
         index++;
       }
