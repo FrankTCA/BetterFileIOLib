@@ -1,30 +1,48 @@
 package BetterFileIO.Compressing;
 
-import BetterFileIO.FileManagement.Directory;
 import BetterFileIO.FileManagement.File;
-import java.util.List;
 
 public class DirectoryCompressor {
-  
   // important variables
-  Directory inputFile;
-  File outputFile;
+  File input;
+  File output;
   
   // class initializer
-  public DirectoryCompressor(Directory inputFile1, FilePath outputFilePath) {
-    inputFile = inputFile1;
-    outputFile = new File(outputFilePath);
+  public DirectoryCompressor(File input1, File output1) {
+    input = input1;
+    output = output1;
   }
   
-  // compresser
+  // compress zip file
   public void compress() {
-    byte[] buffer = new byte[1024];
-    String source = inputFile.getFilePath().getPathAsString();
-    FileOutputStream fos = null;
-    ZipOutputStream zos = null;
-    
-    FileInputStream in = null;
-    
-    for (String file : )
+    ZipOutputStream zipFile = new ZipOutputStream(new FileOutputStream(input.getStandardLibraryFile()));
+    compressDirectoryToZipFile(output.getFilePath().getPathAsString(), input.getFilePath().getPathAsString(), zipFile);
+    IOUtils.closeQuietly(zipFile);
+  }
+  
+  // private method. Do not use
+  private static void compressDirectoryToZipFile(String rootDir, String sourceDir, ZipOutputStream out) {
+      for (java.io.File file : new java.io.File(sourceDir).listFiles()) {
+      if (file.isDirectory()) {
+        compressDirectoryToZipFile(rootDir, sourceDir + java.io.File.seperator + file.getName(), out);
+      } else {
+        ZipEntry entry = new ZipEntry(sourceDir.replace(rootDir, "") + file.getName());
+        out.putNextEntry(entry);
+        
+        FileInputStream in = new FileInputStream(sourceDir + file.getName());
+        IOUtils.copy(in, out);
+        IOUtils.closeQuietly(in);
+      }
+    }
+  }
+  
+  // returns the input
+  public File getInput() {
+    return input;
+  }
+  
+  // returns the output zip file
+  public File getOutput() {
+    return output;
   }
 }
