@@ -37,7 +37,7 @@ public class SimpleFileWriter {
   }
   
   // get the Java SDK BufferedWriter class
-  public BufferedWriter getBufferedWriter() {
+  public BufferedWriter getBufferedWriter() throws IOException {
     return new BufferedWriter(new FileWriter(new java.io.File(file.getFilePath().getPathAsString())));
   }
   
