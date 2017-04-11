@@ -1,6 +1,8 @@
 package BetterFileIO.Compressing;
 
+import BetterFileIO.FileManagement.Directory;
 import BetterFileIO.FileManagement.File;
+import BetterFileIO.FileManagement.FilePath;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,25 +24,25 @@ public class FileDecompressor {
   // class initializer
   public FileDecompressor(File zipFile1, FilePath unzipPath) {
     zipFile = zipFile1;
-    unzipped = new File(unzipPath);
+    unzipped = new Directory(unzipPath);
   }
   
   // decompress compressed archive
-  public void decompress() {
+  public void decompress() throws FileNotFoundException, ArchiveException, IOException {
     InputStream is = new FileInputStream(zipFile.getStandardLibraryFile());
     ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
     ZipEntry entry = (ZipArchiveEntry) ais.getNextEntry();
     
     while (entry != null) {
       if (entry.getName().endsWith("/")) {
-        java.io.File dir = new java.io.File(unzipped.getFilePath().getPathAsString() + java.io.File.seperator + entry.getName());
+        java.io.File dir = new java.io.File(unzipped.getFilePath().getPathAsString() + java.io.File.pathSeparator + entry.getName());
         if (!dir.exists()) {
           dir.mkdirs();
         }
         entry = (ZipArchiveEntry) ais.getNextEntry();
         continue;
       }
-      java.io.File outFile = new java.io.File(unzipped.getFilePath().getPathAsString() + java.io.File.seperator + entry.getName());
+      java.io.File outFile = new java.io.File(unzipped.getFilePath().getPathAsString() + java.io.File.pathSeparator + entry.getName());
       
       if (outFile.isDirectory()) {
         entry = (ZipArchiveEntry) ais.getNextEntry();
@@ -57,12 +59,12 @@ public class FileDecompressor {
   }
   
   // get input file
-  public File getInputFile() {
-    return zipFile;
+  public Directory getInputFile() {
+    return unzipped;
   }
   
   // get output file
   public File getOutputFile() {
-    return unzipped;
+    return zipFile;
   }
 }
