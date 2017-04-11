@@ -2,54 +2,67 @@ package BetterFileIO.Compressing;
 
 import BetterFileIO.FileManagement.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+
+import org.apache.commons.io.FileUtils;
 
 public class FileDecompressor {
-  
-  // important variables
-  List<String> fileList;
-  File inputFile;
-  File outputFile;
+  // important varables
+  File zipFile;
+  Directory unzipped;
   
   // class initializer
-  public FileDecompressor(File inputFile1, File outputFile1) {
-    inputFile = inputFile1;
-    outputFile = outputFile1;
+  public FileDecompressor(File zipFile1, FilePath unzipPath) {
+    zipFile = zipFile1;
+    unzipped = new File(unzipPath);
   }
   
-  // decompress file
+  // decompress compressed archive
   public void decompress() {
-    byte[] buffer = new byte[1024];
+    InputStream is = new FileInputStream(zipFile.getStandardLibraryFile());
+    ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream("zip", is);
+    ZipEntry entry = (ZipArchiveEntry) ais.getNextEntry();
     
-    try {
-      outputFile.create();
-      
-      ZipInputStream zis = new ZipInputStream(new FileInputStream(new File(inputFile.getFilePath().getPathAsString())));
-      ZipEntry ze = zis.getNextEntry();
-      String fileName = ze.getName();
-      FileOutputStream fos = new FileOutputStream(outputFile);
-      int len;
-      while ((len = zis.read(buffer)) > 0) {
-        fos.write(buffer, 0, len);
+    while (entry != null) {
+      if (entry.getName().endsWith("/")) {
+        java.io.File dir = new java.io.File(unzipped.getFilePath().getPathAsString() + java.io.File.seperator + entry.getName());
+        if (!dir.exists()) {
+          dir.mkdirs();
+        }
+        entry = (ZipArchiveEntry) ais.getNextEntry();
+        continue;
       }
-        
-      fos.close();
-    } catch (IOException ex) {
-      ex.printStackTrace();
+      java.io.File outFile = new java.io.File(unzipped.getFilePath().getPathAsString() + java.io.File.seperator + entry.getName());
+      
+      if (outFile.isDirectory()) {
+        entry = (ZipArchiveEntry) ais.getNextEntry();
+        continue;
+      }
+      
+      if (outFile.exists()) {
+        entry = (ZipArchiveEntry) ais.getNextEntry();
+      }
+      
+      FileUtils.copyInputStreamToFile(ais, outFile);
+      entry = (ZipArchiveEntry) ais.getNextEntry();
     }
   }
   
-  // get the input file
+  // get input file
   public File getInputFile() {
-    return inputFile;
+    return zipFile;
   }
   
-  // get the output file
+  // get output file
   public File getOutputFile() {
-    return outputFile;
+    return unzipped;
   }
 }
