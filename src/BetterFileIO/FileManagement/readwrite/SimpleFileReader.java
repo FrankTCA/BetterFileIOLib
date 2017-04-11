@@ -49,7 +49,7 @@ public class SimpleFileReader {
         String line;
         int x = 0;
         while ((line = reader.readLine()) != null) {
-            if (x = lineID) {
+            if (x == lineID) {
                 return line;
             }
             x++;
